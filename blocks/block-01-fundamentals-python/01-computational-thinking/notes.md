@@ -4,6 +4,7 @@
 
 - [1. Introducción](#1-introducción)
 - [2. Definición](#2-definición)
+- [3. ¿Por qué existe y qué problema resuelve?](#3-por-qué-existe-y-qué-problema-resuelve)
 
 ## 1. Introducción
 
@@ -279,3 +280,231 @@ Estas preguntas son útiles por sí mismas y cobran todavía más importancia al
 La idea que quiero recordar de esta sección es:
 
 > **El pensamiento computacional no elimina la complejidad; la organiza hasta hacerla suficientemente manejable como para poder diseñar y verificar una solución.**
+
+## 3. ¿Por qué existe y qué problema resuelve?
+En este punto aparece un concepto que en un inicio no lo tengo claro "comportamiento ejecutable". He consultado al respecto y de lo que entiendo es un conjunto de acciones, reglas o lógica que pueden ser entendidas por la computadora (En caso de que el concepto este erróneo, corrígelo). 
+
+Además se presenta un diagrama bastante interesante. En este caso, en el punto "Modelo del problema", entiendo que es el proceso en el cual se analiza el problema y se lo hace mucho más manejable de llevar, justo lo que mencionabámos un poco en el punto anterior.
+
+En cuanto al ejemplo del registrar el mismo gasto, me resulta bastante interesante. En este punto, tal vez agregaría que en el campo profesional, si podemos consultar o socializar con el cliente, a qué hace referencia determinado requerimiento ya que puede existir una brecha entre lo que entiende el cliente y el programador. 
+
+Me gusto mucho la última sección del aporte que tiene este punto dentro del desarrollo, lo considero clave por las ventajas que se obtiene.
+
+
+### Feedback
+
+Tu interpretación general es correcta.
+
+#### Sobre "comportamiento ejecutable"
+
+Tu definición:
+
+> "un conjunto de acciones, reglas o lógica que pueden ser entendidas por la computadora"
+
+va bien encaminada.
+
+Haría solamente un pequeño ajuste. En este contexto, **comportamiento ejecutable** se refiere al comportamiento concreto que finalmente tendrá el software y que puede ser llevado a ejecución.
+
+Por ejemplo:
+
+```text
+Necesidad:
+
+"Quiero saber cuánto he gastado este mes."
+```
+
+todavía no es directamente ejecutable.
+
+Después de analizarla podríamos llegar a reglas como:
+
+```text
+1. Obtener los gastos del usuario.
+2. Considerar únicamente los gastos del mes actual.
+3. Excluir los gastos anulados.
+4. Sumar sus importes.
+5. Devolver el total.
+```
+
+Eso ya se encuentra mucho más cerca de un comportamiento que puede implementarse y ejecutarse.
+
+Una forma sencilla de recordarlo sería:
+
+```text
+Necesidad
+"Quiero controlar mis gastos."
+
+        ↓
+
+Comportamiento definido
+"Cuando el usuario consulte el resumen mensual,
+el sistema debe sumar los gastos válidos
+correspondientes al período solicitado."
+
+        ↓
+
+Implementación
+Código que realiza ese comportamiento.
+```
+
+Por tanto:
+
+> **"Ejecutable" no significa solamente que la computadora entienda las palabras, sino que la necesidad ha sido transformada en reglas y operaciones suficientemente concretas como para poder implementarse.**
+
+---
+
+#### Sobre "Modelo del problema"
+
+Tu interpretación del concepto es correcta.
+
+El modelo del problema intenta responder:
+
+> **¿Cómo representamos la realidad relevante de este problema sin entrar todavía en cómo vamos a programarla?**
+
+Por ejemplo, en una aplicación de gastos podemos identificar:
+
+```text
+Usuario
+Gasto
+Categoría
+Presupuesto
+Período mensual
+```
+
+junto con reglas como:
+
+```text
+Un gasto pertenece a un usuario.
+
+Un gasto posee un importe.
+
+Un presupuesto corresponde a un período.
+
+Un gasto cancelado no cuenta para ciertos cálculos.
+```
+
+Todavía no hemos decidido:
+
+```text
+clases Python
+tablas SQL
+endpoints
+microservicios
+```
+
+Eso pertenece a etapas posteriores.
+
+---
+
+#### Sobre la comunicación con el cliente
+
+Este aporte es especialmente importante y complementa muy bien la sección.
+
+Una ambigüedad puede aparecer así:
+
+```text
+Cliente:
+"No quiero gastos duplicados."
+
+Desarrollador:
+"Entonces dos gastos con el mismo importe
+y la misma fecha son duplicados."
+```
+
+Pero quizá el cliente realmente quería decir:
+
+```text
+"No quiero que una doble pulsación del botón
+registre dos veces la misma operación."
+```
+
+Son problemas diferentes.
+
+Por eso, antes de implementar, puede ser necesario preguntar:
+
+```text
+¿Qué considera exactamente un duplicado?
+
+¿Dos compras de $10 en el mismo lugar son duplicadas?
+
+¿El problema ocurre cuando el usuario pulsa dos veces?
+
+¿También puede ocurrir durante una importación bancaria?
+
+¿Queremos bloquear o solamente advertir?
+```
+
+Aquí aparece una idea profesional importante:
+
+> **El desarrollador no debería rellenar silenciosamente los huecos del requisito cuando esos huecos pueden cambiar el comportamiento del sistema.**
+
+En algunos casos será necesario consultar al cliente; en otros, al Product Owner, analista, especialista del dominio o responsable funcional.
+
+---
+
+### Idea final
+
+Entre una necesidad y el código existen varias transformaciones:
+
+```text
+Necesidad
+"Quiero evitar gastos duplicados."
+
+        ↓
+
+Clarificación
+"¿Qué significa duplicado?"
+
+        ↓
+
+Modelo del problema
+Identificar:
+- qué entidad está involucrada;
+- qué datos importan;
+- qué situaciones producen el problema;
+- qué reglas existen.
+
+        ↓
+
+Diseño de solución
+Definir cómo debería comportarse el sistema.
+
+        ↓
+
+Diseño técnico
+Elegir mecanismos adecuados.
+
+        ↓
+
+Implementación
+Convertir el diseño en software ejecutable.
+```
+
+Saltar directamente:
+
+```text
+Requisito → Código
+```
+
+puede provocar que una solución técnicamente correcta implemente una interpretación equivocada.
+
+Por eso, cuando aparece una ambigüedad relevante:
+
+```text
+No asumir inmediatamente
+        ↓
+Identificar la duda
+        ↓
+Formular una pregunta concreta
+        ↓
+Validarla con quien conoce el dominio
+        ↓
+Actualizar el modelo del problema
+```
+
+La idea que quiero recordar de esta sección es:
+
+> **Antes de decidir cómo resolver algo técnicamente, debo asegurarme de comprender qué comportamiento necesita realmente el negocio.**
+
+Y una segunda idea que considero especialmente útil en el trabajo profesional:
+
+> **Una buena pregunta realizada antes de implementar puede evitar mucho más retrabajo que una buena solución técnica construida sobre un requisito mal entendido.**
