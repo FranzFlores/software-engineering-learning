@@ -282,6 +282,9 @@ La idea que quiero recordar de esta sección es:
 > **El pensamiento computacional no elimina la complejidad; la organiza hasta hacerla suficientemente manejable como para poder diseñar y verificar una solución.**
 
 ## 3. ¿Por qué existe y qué problema resuelve?
+
+### Mi comprensión
+
 En este punto aparece un concepto que en un inicio no lo tengo claro "comportamiento ejecutable". He consultado al respecto y de lo que entiendo es un conjunto de acciones, reglas o lógica que pueden ser entendidas por la computadora (En caso de que el concepto este erróneo, corrígelo). 
 
 Además se presenta un diagrama bastante interesante. En este caso, en el punto "Modelo del problema", entiendo que es el proceso en el cual se analiza el problema y se lo hace mucho más manejable de llevar, justo lo que mencionabámos un poco en el punto anterior.
@@ -508,3 +511,405 @@ La idea que quiero recordar de esta sección es:
 Y una segunda idea que considero especialmente útil en el trabajo profesional:
 
 > **Una buena pregunta realizada antes de implementar puede evitar mucho más retrabajo que una buena solución técnica construida sobre un requisito mal entendido.**
+
+## 4. Modelo mental general
+
+### Mi comprensión
+El modelo en general, me ha gustado mucho. Algo importante a tener en cuenta es que, como dice en el texto: "No es un proceso rígidamente lineal", lo que me indica que no es un proceso donde se deba seguir todos los pasos sino acoplarlo al problema que se trata de resolver.
+
+### 4.1 Necesidad / problema
+Es la descripción de la situación que se desea cambiar o mejorar, es el punto principalal entender dentro del proceso.
+
+### 4.2 Clarificación y restricciones
+Es esta fase, por llamarle de alguna manera, se "transforma" la necesidad identificada previamente en condiciones específicas que permitan ir atterizando el problema.
+
+### 4.3 Descomposición
+Se aplica el famoso "Divide y vencerás" donde se separa las condiciones previamente identificadas en partes más fáciles de analizar
+
+### 4.4 Patrones
+Consiste en el proceso de buscar elementos y situaciones que se parezcan. En lo personal (no se si estoy en lo correcto) que en este paso se puede empezar a identificar elementos que en código puede ser reutilizables y genéricos
+
+### 4.5 Abstracción
+En lo que entiendo, consiste en enfocarse en los elementos más relevante de un sistema y "ocultar" los detalles específicos del mismo.
+
+### 4.6 Diseño de solución
+En este paso es básicamente empezar a encontrar la solución. Puede ser marcando los pasos del flujo ideal de funcionamiento, de ahí que no sea necesario escoger una tecnología aún.
+
+### 4.7 Validación
+En este caso, si se empieza a analizar los flujos principales, alternos y posibles errores. Un término nuevo para mí en este contexto fue "concurrencia" que lo entiendo como la capacidad de que el sistema realice varias acciones al mismo tiempo.
+
+### 4.8 Representación
+Es la forma en la cual se mostrará la solución. Personalmente lo entiendo como el entregable del proceso. Al ser una etapa previa a la implementación, por experiencia, siempre me gusta usar diagramas UML como diagramas de clases o diagramas de caso de uso, los considero prácticos para el cliente.
+
+### 4.9 Selección tecnológica
+Básicamente es elegir la tecnología a usar para la implemetación de la solución. 
+
+### 4.10 Implementación y retroalimentación
+Al momento de implementar es muy probable que se noten nuevos flujos que no estuvieron previstos y toque realizar el proceso nuevamente. Personalmente, considero que varias iteraciones puede hacer una solución más robusta aunque claro se agrega más complejidad
+
+
+## Feedback
+
+Tu comprensión general del modelo es **muy buena**. Hay, sin embargo, varios matices importantes que vale la pena fijar porque serán útiles posteriormente en arquitectura y diseño.
+
+---
+
+### Sobre que el proceso no sea lineal
+
+Tu interpretación es correcta, pero haría una pequeña precisión.
+
+Cuando el documento dice:
+
+> "No es un proceso rígidamente lineal"
+
+no significa exactamente:
+
+> "Podemos omitir cualquier paso."
+
+Significa principalmente que **el razonamiento puede avanzar y retroceder entre ellos**.
+
+Por ejemplo:
+
+```text
+Diseño una solución
+        ↓
+Descubro que no sé qué ocurre si el gasto está duplicado
+        ↓
+Regreso a requisitos
+        ↓
+Consulto el comportamiento esperado
+        ↓
+Actualizo el modelo
+        ↓
+Continúo diseñando
+```
+
+Además, en problemas pequeños algunos pasos pueden realizarse mentalmente y casi simultáneamente.
+
+Por eso una formulación que considero más precisa sería:
+
+> **No todos los pasos necesitan convertirse en una actividad formal, pero las preguntas que representan siguen siendo útiles.**
+
+---
+
+### Sobre 4.3 Descomposición
+
+La asociación con **"divide y vencerás"** es útil como modelo mental.
+
+Pero conviene no confundirlo con el paradigma algorítmico del mismo nombre (*divide and conquer*).
+
+Aquí estamos hablando de una idea más general:
+
+```text
+Problema grande
+        ↓
+Subproblemas comprensibles
+```
+
+mientras que *Divide and Conquer* en algoritmos tiene un significado más específico que veremos posteriormente.
+
+---
+
+### Sobre 4.4 Patrones y reutilización de código
+
+Aquí tu intuición es correcta, pero existe una distinción importante.
+
+Sí, reconocer patrones puede posteriormente permitir descubrir:
+
+- lógica reutilizable;
+- componentes comunes;
+- funciones compartidas;
+- abstracciones;
+- patrones de diseño.
+
+Pero **no deberíamos convertir inmediatamente una semejanza en código genérico**.
+
+Por ejemplo:
+
+```text
+Gasto:
+importe
+fecha
+moneda
+
+Ingreso:
+importe
+fecha
+moneda
+```
+
+podemos decir:
+
+> "Existe un patrón en los datos."
+
+Pero todavía no necesariamente:
+
+> "Necesitamos una clase genérica `FinancialTransaction`."
+
+Primero debemos comprobar si la semejanza es suficientemente profunda.
+
+Por eso:
+
+```text
+Reconocer un patrón
+        ↓
+Investigar la semejanza
+        ↓
+Entender diferencias
+        ↓
+Solo después considerar reutilización
+```
+
+Una idea importante para recordar:
+
+> **La reutilización puede ser consecuencia del reconocimiento de patrones, pero no es obligatoriamente su objetivo inmediato.**
+
+---
+
+### Sobre 4.5 Abstracción
+
+Tu explicación:
+
+> "enfocarse en los elementos más relevantes y ocultar los detalles específicos"
+
+es bastante buena.
+
+Solo cambiaría ligeramente la palabra **"ocultar"**, porque puede hacer que abstraction e *information hiding* parezcan exactamente lo mismo.
+
+Preferiría:
+
+> **Abstraer consiste en representar únicamente los detalles relevantes para el nivel de razonamiento actual y dejar fuera temporalmente aquellos que no necesitamos.**
+
+Por ejemplo:
+
+```text
+Estamos analizando:
+
+"Realizar un pago."
+```
+
+Podemos trabajar con:
+
+```text
+importe
+medio de pago
+resultado
+```
+
+sin necesitar todavía:
+
+```text
+HTTP
+TLS
+JSON
+SDK del proveedor
+timeouts
+```
+
+Los detalles no necesariamente están "escondidos" técnicamente.
+
+Simplemente **no forman parte del modelo actual**.
+
+---
+
+### Sobre 4.7 Concurrencia
+
+Aquí sí conviene hacer una corrección importante.
+
+Tu definición:
+
+> "la capacidad de que el sistema realice varias acciones al mismo tiempo"
+
+se aproxima, pero **concurrencia no significa necesariamente simultaneidad**.
+
+Una forma más precisa sería:
+
+> **Concurrencia ocurre cuando varias operaciones pueden estar en progreso durante períodos que se solapan y el sistema debe coordinar correctamente sus interacciones.**
+
+Por ejemplo:
+
+```text
+Solicitud A:
+leer total = 100
+                      Solicitud B:
+                      leer total = 100
+
+Solicitud A:
+sumar 20 → 120
+
+                      Solicitud B:
+                      sumar 30 → 130
+```
+
+Si ambas trabajan sobre el mismo dato podríamos terminar con:
+
+```text
+130
+```
+
+cuando el resultado esperado era:
+
+```text
+150
+```
+
+Las operaciones no necesitan ejecutarse exactamente en el mismo nanosegundo.
+
+Lo importante es que **sus períodos de ejecución se solapan y pueden interferir entre sí**.
+
+Una distinción que estudiaremos más adelante será:
+
+```text
+Concurrencia
+Varias tareas progresan durante períodos solapados.
+
+Paralelismo
+Varias tareas se ejecutan literalmente al mismo tiempo.
+```
+
+Por ahora basta con quedarte con esa diferencia conceptual.
+
+---
+
+### Sobre 4.8 Representación
+
+Aquí también haría un pequeño ajuste.
+
+La representación **puede ser un entregable**, pero no necesariamente lo es.
+
+Su objetivo principal es:
+
+> **externalizar el diseño para poder comprenderlo, discutirlo y validarlo.**
+
+Por ejemplo, un pseudocódigo que escribes durante cinco minutos para verificar una lógica quizá nunca llegue al cliente ni al repositorio.
+
+Sigue siendo una representación útil.
+
+Respecto a UML, tu experiencia tiene sentido, pero elegiría el diagrama según la pregunta que queremos responder.
+
+Por ejemplo:
+
+```text
+Caso de uso
+→ ¿Qué puede hacer cada actor?
+
+Secuencia
+→ ¿Quién interactúa con quién y en qué orden?
+
+Estados
+→ ¿Qué estados puede tener una entidad?
+
+Clases
+→ ¿Qué estructura conceptual o de diseño existe?
+
+Flowchart
+→ ¿Qué decisiones sigue un proceso?
+```
+
+Una pequeña observación importante:
+
+Un **diagrama de clases** normalmente se encuentra más cerca del diseño técnico que de la representación inicial del problema.
+
+Para conversar con un cliente, dependiendo del contexto, pueden resultar más accesibles:
+
+- casos de uso;
+- diagramas de actividad;
+- flujos;
+- wireframes;
+- diagramas simples del proceso.
+
+No significa que un diagrama de clases sea incorrecto, sino que debería utilizarse cuando ayude a responder la pregunta actual.
+
+---
+
+### Sobre 4.10 Iteraciones y robustez
+
+Tu idea:
+
+> "varias iteraciones pueden hacer una solución más robusta"
+
+tiene sentido, pero añadiría un matiz importante.
+
+Las iteraciones aportan valor cuando incorporan **nueva información o validación**.
+
+No necesariamente:
+
+```text
+más iteraciones
+=
+mejor solución
+```
+
+Podríamos iterar muchas veces y simplemente añadir complejidad.
+
+Una secuencia saludable sería:
+
+```text
+Implementar
+    ↓
+Obtener nueva información
+    ↓
+Evaluar
+    ↓
+Corregir el modelo
+    ↓
+Simplificar o mejorar
+```
+
+De hecho, una buena iteración también puede descubrir que debemos **eliminar complejidad**, no agregarla.
+
+Así que preferiría pensar:
+
+> **Las iteraciones permiten ajustar progresivamente una solución conforme obtenemos nueva información.**
+
+---
+
+## Idea final
+
+Este modelo mental no es una receta rígida, sino una guía para evitar saltar demasiado pronto desde:
+
+```text
+"Tengo una necesidad"
+```
+
+hasta:
+
+```text
+"Voy a escribir código."
+```
+
+El recorrido puede entenderse así:
+
+```text
+¿Qué necesito resolver?
+        ↓
+¿Qué significa realmente?
+        ↓
+¿En qué partes puedo dividirlo?
+        ↓
+¿Qué elementos se repiten?
+        ↓
+¿Qué información importa?
+        ↓
+¿Cómo debería comportarse la solución?
+        ↓
+¿Qué podría salir mal?
+        ↓
+¿Cómo puedo representar y validar la idea?
+        ↓
+¿Qué tecnología satisface esas necesidades?
+        ↓
+Implementar
+        ↓
+Aprender de la implementación
+        ↓
+Ajustar cuando sea necesario
+```
+
+Tres ideas que quiero conservar especialmente de esta sección son:
+
+> **Reconocer patrones puede conducir a reutilización, pero una semejanza no justifica automáticamente crear una abstracción genérica.**
+
+> **Concurrencia no significa necesariamente ejecutar dos acciones exactamente al mismo tiempo; significa que varias operaciones pueden solaparse y necesitar coordinación.**
+
+> **El modelo mental no busca obligarme a documentar cada paso, sino evitar que omita preguntas importantes antes de tomar decisiones técnicas.**
