@@ -5,6 +5,8 @@
 - [1. Introducción](#1-introducción)
 - [2. Definición](#2-definición)
 - [3. ¿Por qué existe y qué problema resuelve?](#3-por-qué-existe-y-qué-problema-resuelve)
+- [4. Modelo mental general](#4-modelo-mental-general)
+- [5. Descomposición de problemas](#5-descomposición-de-problemas)
 
 ## 1. Introducción
 
@@ -913,3 +915,309 @@ Tres ideas que quiero conservar especialmente de esta sección son:
 > **Concurrencia no significa necesariamente ejecutar dos acciones exactamente al mismo tiempo; significa que varias operaciones pueden solaparse y necesitar coordinación.**
 
 > **El modelo mental no busca obligarme a documentar cada paso, sino evitar que omita preguntas importantes antes de tomar decisiones técnicas.**
+
+## 5. Descomposición de problemas
+
+### Mi comprensión
+### 5.1 Qué significa descomponer
+En este apartado, entiendo que descomponer un problema involucra tomar un problema grande y "dividirlo" en problemas más pequeños que permitan manejarlo de mejor manera. Este proceso se realiza antes de implementar código ya que puede involucrar tomar decisiones de arquitectura como el uso de microservicios
+
+### 5.2 Cómo identificar subproblemas
+En cuanto a las preguntas que se ofrecen, me gusta mucho poder identificar subproblemas mediante definir responsabilidades, datos, resultados, etc. 
+
+### 5.3 Cómo determinar límites
+Me agradó mucho poder contar con los elementos que conforman un buen límite. Del listado la única que no me queda del todo claro es "dependencias explícitas". De lo que comprendo, significa que se conoce adecuadamente los elementos que necesita un componente para poder funcionar correctamente. Por ejemplo, para poder "Registrar un gasto", debo tener acceso a una BD para almacenar la información.
+
+### 5.4 Dependencias entre subproblemas
+Me parece que este concepto guarda cierta relación con el punto anterior. En este caso, si bien cada problema se analiza de manera independiente, no se debe eliminar las relaciones que tiene. Se me ocurre como ejemplo de que un inicio de sesión se puede analizar como proceso pero guarda relación con usuarios, cuentas, roles, etc.
+
+### 5.5 Descomposición demasiado grande
+Algo que me llamó la atención en este punto es que si "resulta difícil de nombrar a un problema" probablemente es por que su alcance aún es muy amplio. Se me ocurre como ejemplo decir "la autenticación de usuarios", donde puede existe diferentes procesos como si se debe o no permitir que los usuarios se registren, el inicio de sesión, el guardado de contraseñas seguras, etc.
+
+### 5.6 Descomposición demasiado pequeña
+El ejemplo me gustó mucho, más parece un pseudocódigo de un proceso que un subproblema. 
+
+## Feedback
+
+Tu comprensión general de la sección es correcta. Hay algunos matices importantes que conviene ajustar.
+
+### Sobre 5.1 — Descomponer antes de implementar
+
+Es correcto que la descomposición ocurre antes del código y que puede terminar influyendo en decisiones arquitectónicas.
+
+Sin embargo, evitaría asociar directamente:
+
+```text
+Descomposición
+    ↓
+Microservicios
+```
+
+La descomposición primero descubre **responsabilidades y límites conceptuales**.
+
+Por ejemplo:
+
+```text
+Sistema de gastos
+├── Registro de movimientos
+├── Presupuestos
+├── Reportes
+└── Notificaciones
+```
+
+Eso no significa que cada parte deba convertirse en un microservicio.
+
+Posteriormente podríamos implementar todo como:
+
+- un monolito;
+- un monolito modular;
+- varios servicios;
+- otra arquitectura.
+
+Una idea importante sería:
+
+> **La descomposición descubre cómo está estructurado el problema; la arquitectura decide posteriormente cómo representar técnicamente esos límites.**
+
+---
+
+### Sobre 5.2 — Identificación de subproblemas
+
+Las preguntas sobre responsabilidades, datos y resultados son especialmente útiles porque evitan dividir simplemente por intuición.
+
+Una pregunta que añadiría mentalmente es:
+
+> **¿Puedo explicar este subproblema de manera relativamente independiente?**
+
+Por ejemplo:
+
+```text
+Calcular resumen mensual
+```
+
+puede explicarse indicando:
+
+- qué información necesita;
+- qué reglas aplica;
+- qué resultado produce;
+
+sin necesidad de explicar todo el sistema de gastos.
+
+Eso es una buena señal de que existe un subproblema razonable.
+
+---
+
+### Sobre 5.3 — Dependencias explícitas
+
+Tu interpretación está bien encaminada:
+
+> una dependencia es algo que un subproblema necesita para poder cumplir su responsabilidad.
+
+Pero haría una corrección importante en el ejemplo.
+
+Decir:
+
+```text
+Registrar gasto necesita una base de datos
+```
+
+ya introduce una decisión tecnológica.
+
+En este nivel sería mejor decir:
+
+```text
+Registrar gasto necesita algún mecanismo
+para conservar el gasto.
+```
+
+Posteriormente podremos decidir si ese mecanismo será:
+
+```text
+PostgreSQL
+archivo local
+API externa
+almacenamiento en memoria
+etc.
+```
+
+También existen dependencias que no son infraestructura.
+
+Por ejemplo:
+
+```text
+Registrar gasto
+│
+├── necesita conocer al usuario
+├── necesita validar la categoría
+├── necesita las reglas del gasto
+└── necesita conservar el resultado
+```
+
+Que sean **explícitas** significa básicamente que podemos decir claramente:
+
+> "Para realizar X necesito Y."
+
+en lugar de que esa relación quede oculta o aparezca inesperadamente durante la implementación.
+
+---
+
+### Sobre 5.4 — Dependencias entre subproblemas
+
+Tu ejemplo de autenticación va en la dirección correcta.
+
+Aquí conviene distinguir entre:
+
+```text
+Conceptos relacionados
+```
+
+y:
+
+```text
+Dependencias entre procesos
+```
+
+Por ejemplo:
+
+```text
+Inicio de sesión
+```
+
+está relacionado conceptualmente con:
+
+- usuario;
+- cuenta;
+- roles.
+
+Pero podríamos identificar dependencias más concretas como:
+
+```text
+Validar credenciales
+        ↓
+necesita obtener la cuenta
+
+Crear sesión
+        ↓
+depende de que las credenciales sean válidas
+
+Determinar permisos
+        ↓
+depende de roles o políticas asociadas
+```
+
+Esto permite descubrir no solamente **qué cosas están relacionadas**, sino también:
+
+- qué necesita cada proceso;
+- qué debe ocurrir antes;
+- qué información pasa de uno a otro;
+- qué sucede si una dependencia falla.
+
+---
+
+### Sobre 5.5 — Descomposición demasiado grande
+
+La observación sobre la dificultad para nombrar algo es una heurística útil.
+
+Tu ejemplo de:
+
+```text
+Autenticación de usuarios
+```
+
+también muestra algo interesante: el nombre no siempre será malo por ser amplio.
+
+Podría ser perfectamente válido como **área o problema de alto nivel**.
+
+Lo que ocurre es que probablemente todavía necesitemos descomponerlo para trabajar sobre él:
+
+```text
+Autenticación
+├── Registro
+├── Inicio de sesión
+├── Recuperación de acceso
+├── Gestión de credenciales
+└── Cierre / renovación de sesión
+```
+
+Además, aquí hay una pequeña precisión:
+
+```text
+Roles
+```
+
+normalmente se relaciona más con **autorización** que con autenticación.
+
+Una distinción útil para recordar:
+
+```text
+Autenticación
+"¿Quién eres?"
+
+Autorización
+"¿Qué puedes hacer?"
+```
+
+Aunque ambos procesos suelen estar relacionados dentro de un sistema.
+
+---
+
+### Sobre 5.6 — Descomposición demasiado pequeña
+
+Tu observación es exactamente el problema que intenta mostrar el ejemplo.
+
+Cuando llegamos a algo como:
+
+```text
+leer variable
+convertir valor
+llamar función
+incrementar contador
+```
+
+ya no estamos necesariamente descomponiendo el **problema**, sino describiendo pasos de una posible implementación.
+
+Una buena comparación sería:
+
+```text
+Descomposición del problema:
+
+Registrar gasto
+├── validar
+├── clasificar
+├── conservar
+└── reflejar en resumen
+```
+
+frente a:
+
+```text
+Detalle de implementación:
+
+leer amount
+convertir a Decimal
+llamar save()
+sumar variable
+```
+
+La primera ayuda a razonar sobre responsabilidades.
+
+La segunda puede ser útil más adelante como pseudocódigo o implementación, pero tiene un nivel de detalle demasiado bajo para esta etapa.
+
+---
+
+### Idea que conviene conservar
+
+El principal criterio que extraería de toda esta sección sería:
+
+> **Una buena descomposición no intenta producir la mayor cantidad posible de partes, sino encontrar partes suficientemente independientes y comprensibles como para poder razonar sobre ellas sin perder las relaciones que existen entre sí.**
+
+Y una segunda idea especialmente importante para las próximas secciones:
+
+```text
+Descomponer el problema
+        ≠
+diseñar inmediatamente módulos técnicos
+```
+
+Primero descubrimos **responsabilidades y límites del problema**.
+
+Después podremos decidir cómo esos límites se traducen —o no— en funciones, clases, módulos, servicios o componentes arquitectónicos.
