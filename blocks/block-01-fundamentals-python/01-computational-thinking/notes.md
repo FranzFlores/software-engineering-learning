@@ -7,6 +7,7 @@
 - [3. ¿Por qué existe y qué problema resuelve?](#3-por-qué-existe-y-qué-problema-resuelve)
 - [4. Modelo mental general](#4-modelo-mental-general)
 - [5. Descomposición de problemas](#5-descomposición-de-problemas)
+- [6. Reconocimiento de patrones](#6-reconocimiento-de-patrones)
 
 ## 1. Introducción
 
@@ -1221,3 +1222,494 @@ diseñar inmediatamente módulos técnicos
 Primero descubrimos **responsabilidades y límites del problema**.
 
 Después podremos decidir cómo esos límites se traducen —o no— en funciones, clases, módulos, servicios o componentes arquitectónicos.
+
+## 6. Reconocimiento de patrones
+### Mi comprensión
+
+### Qué significa
+La definición bridada, hace que se remarqué que al tratar de encontrar semejanzas importantes entre ciertas situaciones, se trata de reutilizar "razonamiento" en lugar de código.
+
+### Patrones de datos
+El ejemplo brindado es bastante interesante. En lo personal, basado en el ejemplo propuesto, pienso que tal vez se puede "optimizar" todo en una sola clase llamada "Movimiento" donde se tiene todos los campos propuestos y se tiene uno adicional llamado "tipo" donde se identificaría si es "Gasto" o "Ingreso". Con todo, tengo claro de que esto NO necesariamente significa que van a compatir una cosa o tabla.
+
+### Patrones en comportamiento
+El ejemplo no lo he entidido bien. De lo que comprendo, es que pueden existir varias acciones como crear o editar un gasto, que probablemente afecten a una misma operación como el presupuesto o resumen mensual.
+
+### Patrones de requisitos
+En este caso, del ejemplo provisto, comprendo que a partir de los requisitos con intervalo común, se puede obtener un requisito más general.
+
+### Reutilizar soluciones conocidas
+En este caso, lo que entiendo es que, a partir de procesos o soluciones previamente usados se pueden aplicar los mismos para problemas con similar estructura.
+
+### Reconocer patrón ≠ aplicar patrón de diseño
+Correcto, aunque me gustaría que uses un ejemplo sencillo relacionado al tema de la aplicación para llevar el control financiero.
+
+## Feedback
+
+Tu comprensión general de la sección es correcta. La idea principal que ya estás captando es esta:
+
+> **Reconocer patrones no significa buscar inmediatamente código que pueda reutilizarse, sino detectar semejanzas que permitan reutilizar razonamiento.**
+
+A partir de ahí sí pueden aparecer oportunidades de reutilización técnica, pero eso ocurre después.
+
+---
+
+### Sobre qué significa reconocer patrones
+
+Tu interpretación es correcta.
+
+Cuando encontramos dos situaciones parecidas, podemos preguntarnos:
+
+```text
+¿Qué tienen realmente en común?
+
+¿Qué razonamiento utilizado en una de ellas
+puedo aplicar también en la otra?
+```
+
+Por ejemplo, si ya resolvimos:
+
+```text
+Consultar gastos por mes
+```
+
+y luego aparece:
+
+```text
+Consultar ingresos por mes
+```
+
+podemos reconocer que ambos problemas comparten una estructura:
+
+```text
+movimientos
++
+intervalo temporal
++
+usuario
+```
+
+Esto nos permite reutilizar parte del **modelo mental** antes de pensar siquiera en reutilizar código.
+
+---
+
+### Sobre patrones en datos
+
+Aquí aparece un punto muy importante en tu propuesta de crear una clase `Movimiento`.
+
+Tu razonamiento es perfectamente válido como **hipótesis de diseño**:
+
+```text
+Movimiento
+- fecha
+- importe
+- moneda
+- tipo
+```
+
+donde:
+
+```text
+tipo = gasto | ingreso
+```
+
+Pero precisamente esta sección intenta enseñarnos a no saltar todavía a esa conclusión.
+
+Lo que podemos afirmar con seguridad es:
+
+```text
+Gasto e ingreso comparten ciertos datos.
+```
+
+Eso es un **patrón detectado**.
+
+Después podemos evaluar diferentes representaciones:
+
+```text
+Opción A
+
+Movimiento
+- fecha
+- importe
+- moneda
+- tipo
+```
+
+o:
+
+```text
+Opción B
+
+Gasto
+- fecha
+- importe
+- moneda
+
+Ingreso
+- fecha
+- importe
+- moneda
+```
+
+o incluso otras alternativas.
+
+La pregunta relevante sería:
+
+> **¿Las semejanzas entre gasto e ingreso son suficientemente importantes como para tratarlos como el mismo concepto?**
+
+Imagina que después aparecen reglas como:
+
+```text
+Gasto:
+- afecta presupuesto;
+- puede tener comercio;
+- puede tener categoría de consumo.
+
+Ingreso:
+- puede tener fuente;
+- puede ser salario;
+- puede tener reglas fiscales diferentes.
+```
+
+Entonces quizá:
+
+```text
+Movimiento
+```
+
+siga siendo una buena abstracción para algunas operaciones, pero no necesariamente para todo el sistema.
+
+La idea importante sería:
+
+```text
+Detectar semejanza
+        ↓
+Reconocer patrón
+        ↓
+Analizar también diferencias
+        ↓
+Evaluar abstracción
+        ↓
+Recién después diseñar clases/tablas
+```
+
+Por eso tu propuesta no está mal. Simplemente está **un paso más adelante** de lo que necesitamos concluir en esta sección.
+
+---
+
+### Sobre patrones en comportamiento
+
+Tu interpretación es correcta.
+
+El ejemplo intenta mostrar que distintas acciones pueden producir una **misma consecuencia conceptual**.
+
+Por ejemplo:
+
+```text
+Registrar gasto
+Editar gasto
+Cancelar gasto
+```
+
+son acciones diferentes.
+
+Pero las tres pueden provocar:
+
+```text
+El resumen mensual debe reflejar el nuevo estado.
+```
+
+También podrían afectar:
+
+```text
+Presupuesto mensual
+Estadísticas
+Gráficas
+Alertas
+```
+
+Entonces detectamos un patrón de comportamiento:
+
+> **Cuando cambia un gasto, cierta información derivada puede necesitar actualizarse.**
+
+Podemos representarlo así:
+
+```text
+Crear gasto ────────┐
+                    │
+Editar gasto ───────┼──→ Cambia información financiera derivada
+                    │
+Cancelar gasto ─────┘
+```
+
+Todavía no estamos diciendo:
+
+```text
+"Debemos usar eventos."
+```
+
+ni:
+
+```text
+"Debemos crear un Observer."
+```
+
+Solo estamos reconociendo una regularidad.
+
+Este tipo de patrón resulta muy útil porque más adelante puede ayudarnos a descubrir responsabilidades del sistema.
+
+---
+
+### Sobre patrones en requisitos
+
+Tu comprensión es correcta.
+
+Si tenemos:
+
+```text
+Filtrar gastos por mes.
+Filtrar ingresos por mes.
+Filtrar transferencias por mes.
+```
+
+podemos detectar una necesidad más general:
+
+```text
+Consultar movimientos financieros por período.
+```
+
+Sin embargo, hay que tener cuidado con una cosa.
+
+El requisito general:
+
+```text
+Consultar movimientos por período
+```
+
+no necesariamente **reemplaza** los requisitos anteriores.
+
+Puede servir para descubrir una capacidad común, pero cada tipo de movimiento todavía podría tener reglas particulares.
+
+Podemos verlo como:
+
+```text
+Requisitos específicos
+        ↓
+Detectar semejanza
+        ↓
+Capacidad común
+```
+
+y no necesariamente como:
+
+```text
+Requisitos específicos
+        ↓
+Eliminar diferencias
+```
+
+---
+
+### Sobre reutilizar soluciones conocidas
+
+Tu interpretación también es correcta.
+
+Si encontramos un problema cuya estructura ya conocemos, podemos recuperar razonamiento previo.
+
+Por ejemplo:
+
+En una parte de la aplicación tenemos:
+
+```text
+Presupuesto
+
+activo
+agotado
+cerrado
+```
+
+y descubrimos que las transiciones entre estados están estrictamente controladas.
+
+Más adelante aparece:
+
+```text
+Meta de ahorro
+
+activa
+completada
+cancelada
+```
+
+Podemos reconocer:
+
+> Ambos problemas involucran entidades que atraviesan estados definidos y cuyas transiciones tienen reglas.
+
+Esto puede hacer que recordemos el concepto de:
+
+```text
+máquina de estados
+```
+
+Pero todavía debemos comprobar si realmente aporta valor en el nuevo problema.
+
+Por tanto:
+
+> **Reutilizar soluciones conocidas significa reutilizar experiencia y razonamiento, no copiar automáticamente la implementación anterior.**
+
+---
+
+### Sobre reconocer patrón ≠ aplicar patrón de diseño
+
+Tomemos un ejemplo sencillo del sistema financiero.
+
+Supongamos que tenemos tres formas de calcular una comisión:
+
+```text
+Transferencia bancaria:
+1%
+
+Tarjeta:
+2%
+
+Transferencia internacional:
+3%
+```
+
+Observamos un patrón:
+
+```text
+Existe una operación:
+
+calcular comisión
+
+pero el cálculo cambia
+según el tipo de operación.
+```
+
+Podríamos pensar inmediatamente:
+
+```text
+Strategy Pattern
+```
+
+y crear:
+
+```text
+CommissionStrategy
+├── BankCommissionStrategy
+├── CardCommissionStrategy
+└── InternationalCommissionStrategy
+```
+
+Pero antes deberíamos preguntarnos:
+
+```text
+¿Realmente existen muchos algoritmos?
+
+¿Van a cambiar frecuentemente?
+
+¿Necesitamos agregarlos dinámicamente?
+
+¿Hay comportamiento complejo?
+
+¿O simplemente son tres reglas pequeñas?
+```
+
+Quizá para nuestro sistema actual sea suficiente:
+
+```text
+SI tipo = bank:
+    comisión = amount * 0.01
+
+SI tipo = card:
+    comisión = amount * 0.02
+
+SI tipo = international:
+    comisión = amount * 0.03
+```
+
+o alguna representación sencilla equivalente.
+
+Entonces:
+
+```text
+Patrón reconocido:
+"El cálculo cambia según el tipo."
+
+        ↓
+
+Posible solución:
+Strategy
+
+        ≠
+
+Obligación:
+usar Strategy
+```
+
+Si posteriormente aparecen:
+
+```text
+20 tipos de comisión
+reglas complejas
+proveedores diferentes
+cambios frecuentes
+configuración dinámica
+```
+
+entonces Strategy podría empezar a aportar mucho más valor.
+
+La lección es:
+
+> **Un patrón de diseño debe resolver una complejidad existente, no crear complejidad porque reconocimos una semejanza.**
+
+---
+
+## Idea final
+
+El reconocimiento de patrones puede verse así:
+
+```text
+Observar varios casos
+        ↓
+Detectar semejanzas
+        ↓
+Preguntar qué tienen realmente en común
+        ↓
+Reutilizar razonamiento
+        ↓
+Analizar también sus diferencias
+        ↓
+Evaluar si conviene abstraer o reutilizar una solución
+```
+
+En el proyecto de gastos podría aparecer en distintos niveles:
+
+```text
+Datos:
+Gasto e ingreso comparten fecha, importe y moneda.
+
+Comportamiento:
+Crear, editar y cancelar gastos afectan resúmenes.
+
+Requisitos:
+Gastos, ingresos y transferencias necesitan consultas por período.
+
+Soluciones:
+Varias entidades pueden requerir controlar transiciones de estados.
+```
+
+Pero reconocer esas semejanzas **no obliga** a crear inmediatamente:
+
+```text
+clases genéricas
+tablas compartidas
+microservicios
+patrones GoF
+arquitecturas complejas
+```
+
+La idea que quiero recordar de esta sección es:
+
+> **Primero reconozco la semejanza. Después compruebo si es suficientemente importante y estable. Solo entonces decido si merece convertirse en una abstracción o solución reutilizable.**
+
